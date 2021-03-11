@@ -36,7 +36,7 @@ class BurgerBuilder extends Component {
     updatePurchaseState (ingredients) {
         const sum = Object.values(ingredients)
             .reduce((sum, el) => sum + el)
-        this.setState( { purchasable: sum > 0 } );
+        this.setState({ purchasable: sum > 0 });
     }
 
 
@@ -61,15 +61,15 @@ class BurgerBuilder extends Component {
 
     // inovked when "Order Now" button is clicked
     purchaseHandler = () => {
-        this.setState( { purchasing: true } );
+        this.setState({ purchasing: true });
     }
 
     purchaseCancelHandler = () => {
-        this.setState( { purchasing: false } );
+        this.setState({ purchasing: false });
     }
 
     purchaseContinueHandler = () => {
-        this.setState( { loading: true } );
+        this.setState({ loading: true });
         const order = {
             ingredients: this.state.ingredients,
             price: this.state.totalPrice, 
@@ -77,7 +77,7 @@ class BurgerBuilder extends Component {
         axios.post('/orders.json', order)
             .then(response => console.log(response))
             .catch(error => console.log(error))
-        this.setState( {loading: false})
+        this.setState({loading: false})
 
     }
 
