@@ -59,6 +59,7 @@ class BurgerBuilder extends Component {
         this.updatePurchaseState( updatedIngredients )
     }
 
+    // inovked when "Order Now" button is clicked
     purchaseHandler = () => {
         this.setState( { purchasing: true } );
     }
@@ -71,17 +72,8 @@ class BurgerBuilder extends Component {
         this.setState( { loading: true } );
         const order = {
             ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'Gosia',
-                address: {
-                    street: 'Maczka 17',
-                    zipCode: '52-201',
-                    country: 'Poland'
-                }
-            }
+            price: this.state.totalPrice, 
         }
-
         axios.post('/orders.json', order)
             .then(response => console.log(response))
             .catch(error => console.log(error))
@@ -90,17 +82,17 @@ class BurgerBuilder extends Component {
     }
 
     render () {
-        const disabledInfo = {
-            ...this.state.ingredients
-        };
-        for ( let key in disabledInfo ) {
-            disabledInfo[key] = disabledInfo[key] <= 0
+        const disabledIngriedientsInfo = { ...this.state.ingredients };
+        for ( let ingredient in disabledIngriedientsInfo ) {
+            disabledIngriedientsInfo[ingredient] = disabledIngriedientsInfo[ingredient] <= 0
         }
+
         let orderSummary = <OrderSummary
             ingredients={this.state.ingredients}
             price={this.state.totalPrice}
             purchaseCancelled={this.purchaseCancelHandler}
             purchaseContinued={this.purchaseContinueHandler} />;
+
         if ( this.state.loading ) {
             orderSummary = <Spinner />;
         }
@@ -114,7 +106,7 @@ class BurgerBuilder extends Component {
                 <BuildControls
                     ingredientAdded={this.addIngredientHandler}
                     ingredientRemoved={this.removeIngredientHandler}
-                    disabled={disabledInfo}
+                    disabled={disabledIngriedientsInfo}
                     purchasable={this.state.purchasable}
                     ordered={this.purchaseHandler}
                     price={this.state.totalPrice} />
