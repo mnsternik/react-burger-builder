@@ -7,6 +7,7 @@ import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import axios from '../../axios-orders';
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 
 
 //written with capital letter to highlight that this is global variable 
@@ -33,7 +34,7 @@ class BurgerBuilder extends Component {
     }
 
     //check if any ingredient has been added 
-    updatePurchaseState (ingredients) {
+    updatePurchaseState(ingredients) {
         const sum = Object.values(ingredients)
             .reduce((sum, el) => sum + el)
         this.setState({ purchasable: sum > 0 });
@@ -42,21 +43,21 @@ class BurgerBuilder extends Component {
 
     addIngredientHandler = (type) => {
         const updatedIngredients = { ...this.state.ingredients };
-        let updatedPrice = this.state.totalPrice; 
-        updatedIngredients[type]++; 
+        let updatedPrice = this.state.totalPrice;
+        updatedIngredients[type]++;
         updatedPrice += INGREDIENT_PRICES[type];
         this.setState({ totalPrice: updatedPrice, ingredients: updatedIngredients })
-        this.updatePurchaseState( updatedIngredients )
+        this.updatePurchaseState(updatedIngredients)
     }
 
     removeIngredientHandler = (type) => {
-        if (this.state.ingredients[type] <= 0) return; 
+        if (this.state.ingredients[type] <= 0) return;
         const updatedIngredients = { ...this.state.ingredients };
-        let updatedPrice = this.state.totalPrice; 
+        let updatedPrice = this.state.totalPrice;
         updatedIngredients[type] -= 1;
-        updatedPrice -= INGREDIENT_PRICES[type]; 
+        updatedPrice -= INGREDIENT_PRICES[type];
         this.setState({ totalPrice: updatedPrice, ingredients: updatedIngredients })
-        this.updatePurchaseState( updatedIngredients )
+        this.updatePurchaseState(updatedIngredients)
     }
 
     // inovked when "Order Now" button is clicked
@@ -72,18 +73,22 @@ class BurgerBuilder extends Component {
         this.setState({ loading: true });
         const order = {
             ingredients: this.state.ingredients,
-            price: this.state.totalPrice, 
+            price: this.state.totalPrice,
         }
         axios.post('/orders.json', order)
-            .then(response => console.log(response))
-            .catch(error => console.log(error))
-        this.setState({loading: false})
-
+            .then(response => {
+                console.log(response);
+                this.setState({ loading: false, purchasing: false });
+            })
+            .catch(error => {
+                console.log(error);
+                this.setState({ loading: false, purchasing: false })
+            })
     }
 
-    render () {
+    render() {
         const disabledIngriedientsInfo = { ...this.state.ingredients };
-        for ( let ingredient in disabledIngriedientsInfo ) {
+        for (let ingredient in disabledIngriedientsInfo) {
             disabledIngriedientsInfo[ingredient] = disabledIngriedientsInfo[ingredient] <= 0
         }
 
@@ -93,13 +98,13 @@ class BurgerBuilder extends Component {
             purchaseCancelled={this.purchaseCancelHandler}
             purchaseContinued={this.purchaseContinueHandler} />;
 
-        if ( this.state.loading ) {
+        if (this.state.loading) {
             orderSummary = <Spinner />;
         }
 
         return (
             <Aux>
-                <Modal show={this.state.purchasing} modalClosed={this.purchaseCancelHandler}>
+                <Modal show={this.state.purchasing} close={this.purchaseCancelHandler}>
                     {orderSummary}
                 </Modal>
                 <Burger ingredients={this.state.ingredients} />
@@ -115,4 +120,4 @@ class BurgerBuilder extends Component {
     }
 }
 
-export default BurgerBuilder;
+export default withErrorHandler(BurgerBuilder, axios);
